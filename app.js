@@ -21,7 +21,7 @@ app.get('/', indexControllers.index);
 app.get('/about', aboutControllers.about);
 app.get('/events', eventControllers.listEvents);
 // add '//:id' and route it to a controller in eventControllers
-app.get('/events/:id', eventControllers.eventDetail);
+app.get('/events/:id[0-9]+', eventControllers.eventDetail);
 app.get('/events/new', eventControllers.newEvent);
 app.post('/events/new', eventControllers.saveEvent);
 app.get('/api/events', eventControllers.api);
