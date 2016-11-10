@@ -49,22 +49,31 @@ function newEvent(request, response){
   response.render('create-event.html', contextData);
 }
 
-function checkIntRange(request, fieldname, minVal, maxVal, contextData){
-  var value = null; 
-
- if (validator.isInt(request.body[fieldname]) === false) {
-    contextData.errors.push('The ' + fieldname + ' should be an integer.');
-  }
-
-  else {
-    value = parseInt(request.body[fieldname], 10);
-   if (value > maxVal || value < minVal) {
-    contextData.errors.push('The ' + fieldname +' is outside the range of ' + minVal+' to ' + maxVal+' .');
-}
+function checkIntRange(request, fieldName, minVal, maxVal, contextData){
+  var value = null;
+  if (validator.isInt(request.body[fieldName]) == false) {
+    contextData.errors.push('Your ' + fieldName + 'should be an integer');
+  }else{
+    value = parseInt (request.body[fieldName], 10);
+    if (value > maxVal || value < minVal) {
+    contextData.errors.push('Your ' + [fieldName] + 'should be between' + minVal + 'and' + maxVal);
+    }
   }
   return value;
 }
 
+
+function getNewId (){
+  var maxId = 0;
+  var allEvents = events.all;
+  for (var i = allEvents.length - 1; i >= 0; i--) {
+    if (maxId < allEvents[i].id){
+      maxId = allEvents[i].id;
+    }
+  }
+   maxId++;
+   return maxId;
+}
 
 
 /**
@@ -72,50 +81,90 @@ function checkIntRange(request, fieldname, minVal, maxVal, contextData){
  * Validates the form and adds the new event to
  * our global list of events.
  */
+
 function saveEvent(request, response){
   var contextData = {errors: []};
-
   if (validator.isLength(request.body.title, 5, 50) === false) {
     contextData.errors.push('Your title should be between 5 and 100 letters.');
   }
 
-  if (validator.isLength(request.body.location, 5, 50) === false) {
-    contextData.errors.push('Your location should be between 5 and 50 letters.');
-  }  
-
-  if ((request.body.minute) != 0 || (request.body.minute)!=30){
-    contextData.errors.push('Your events should start at the beggining of the hour/ half hour mark');
+  if (validator.isURL(request.body.image) === false) {
+    contextData.errors.push('Your image should be a URL Dude!');
   }
 
-  var minute = request.body.minute;
-  var year = checkIntRange(request, year, 2015, 2016, contextData);
-  var month = checkIntRange(request, month, 0, 11, contextData);
-  var hour = checkIntRange(request, hour, 0, 23, contextData);
-  var day = checkIntRange(request, day, 1, 31, contextData);
+  if (validator.matches(request.body.image, /\.(png|gif)$/) === false) {
+    contextData.errors.push('Your image should be a PNG or GIF!');
+  }
+
+  if (validator.isLength(request.body.location, 1, 50) === false) {
+    contextData.errors.push('Your location is empty or too long. Fix it!');
+  }
+
+  var year = checkIntRange(request, 'year', 2015, 2016, contextData);
+  var month = checkIntRange(request, 'month', 0, 11, contextData);  
+  var day = checkIntRange(request, 'day', 1, 31, contextData);
+  var mahina = new Array();
+  mahina[0] = "January";
+  mahina[1] = "February";
+  mahina[2] = "March";
+  mahina[3] = "April";
+  mahina[4] = "May";
+  mahina[5] = "June";
+  mahina[6] = "July";
+  mahina[7] = "August";
+  mahina[8] = "September";
+  mahina[9] = "October";
+  mahina[10] = "November";
+  mahina[11] = "December";
+
+  if (month === 3 || month === 5 || month === 8 || month === 10) {
+    if(day === 31) {
+      contextData.errors.push('We don\'t have 31 days in ' + mahina[month]);  
+    }
+  }
+
+  if (new Date(year, 1, 29).getMonth() === 1){
+      if (month === 1) {
+        if (day === 30 || day === 31) {
+          contextData.errors.push('We don\'t have ' + day + ' days in ' + mahina[month]);       
+        }
+      }
+  }    
+
+  else{
+        if (month === 1) {
+          if (day === 29 || day === 30 || day === 31) {
+            contextData.errors.push('We don\'t have ' + day + ' days in ' + mahina[month]);       
+        }
+      }
+  }
+
+  var hour = checkIntRange(request, 'hour', 0, 23, contextData);
 
   if (contextData.errors.length === 0) {
+    var newId = getNewId();
     var newEvent = {
+      id: newId,
       title: request.body.title,
       location: request.body.location,
       image: request.body.image,
-      date: new Date(),
+      date: new Date(year, month, day, hour),
       attending: []
     };
     events.all.push(newEvent);
-    response.redirect('/events');
-  }else{
+    response.redirect('/events/'+newId);
+  }
+  else{
     response.render('create-event.html', contextData);
   }
 }
 
 function eventDetail (request, response) {
-  var ev = events.getById(parseInt(request.params.id));
+  var ev = events.getById(parseInt(request.params.id,10));
   if (ev === null) {
     response.status(404).send('No such event');
-  } else {
-    response.render('event-detail.html', {event: ev})
-    
-  };
+  }
+  response.render('event-detail.html', {event: ev});
 }
 
 function rsvp (request, response){
