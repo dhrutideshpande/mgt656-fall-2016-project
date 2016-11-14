@@ -100,7 +100,7 @@ function saveEvent(request, response){
     contextData.errors.push('Your location is empty or too long. Fix it!');
   }
 
-  var year = checkIntRange(request, 'year', 2015, 2016, contextData);
+  var year = checkIntRange(request, 'year', 2016, 2017, contextData);
   var month = checkIntRange(request, 'month', 0, 11, contextData);  
   var day = checkIntRange(request, 'day', 1, 31, contextData);
   var mahina = new Array();
