@@ -12,6 +12,9 @@
     <input type="text" name="email" id="RSVP email">
     <input type="submit">
   </form>
-
+  
+  {% for error in errors %}
+   <b>{{error}}</b>
+  {% endfor %}
 
 {% endblock %}
