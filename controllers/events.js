@@ -87,10 +87,6 @@ function saveEvent(request, response){
   if (validator.isLength(request.body.title, 5, 50) === false) {
     contextData.errors.push('Your title should be between 5 and 100 letters.');
   }
-  
-    if (validator.contains(request.body.email, "@yale.edu") === false) {
-    contextData.errors.push('Your email address must be a valid Yale email');
-  }
 
   if (validator.isURL(request.body.image) === false) {
     contextData.errors.push('Your image should be a URL Dude!');
@@ -177,12 +173,12 @@ function rsvp (request, response){
     response.status(404).send('No such event');
   } 
 
-  if(validator.isEmail(request.body.email) && request.body.email.toLowerCase().endsWith("@yale.edu")){
+  if(validator.isEmail(request.body.email)){
     ev.attending.push(request.body.email);
     response.redirect('/events/' + ev.id);
   }else{
     var contextData = {errors: [], event: ev};
-    contextData.errors.push('Invalid email: Your email must be a valid Yale email address');
+    contextData.errors.push('Invalid email');
     response.render('event-detail.html', contextData);    
   }
 
