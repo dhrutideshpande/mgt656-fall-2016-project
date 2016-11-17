@@ -1,20 +1,31 @@
 {% extends "layout.html" %}
 
 {% block mainContent %}
-  <div><h1>{{event.title}}</h1></div>
-  <div><span>Date: {{event.date}}</span></div>
-  <div><span>Location: {{event.location}}</span></div>
-  <div>Attendees: {{event.attending}}</div>
-  <div><img src={{event.image}}></img></div>
+  <div><h1 id="title">{{event.title}}</h1></div>
+  <div><span id="date">{{event.date}}</span></div>
+  <div><span id="location">{{event.location}}</span></div>
+  <div>
+   <ul  id="attendees">
+    {% for person in event.attending %}
+     <li>{{person}}</li>
+    {% endfor %}
+   </ul>
+  </div>
+  <div><img src={{event.image}} id="image"></div>
   
    <form method="POST">
     <label for="email">RSVP:</label>
-    <input type="text" name="email" id="RSVP email">
-    <input type="submit">
+    <input type="email" name="email" id="email">
+    <input type="submit" value="Submit">
   </form>
   
-  {% for error in errors %}
-   <b>{{error}}</b>
-  {% endfor %}
+   <ul class="form-errors">
+    {% for error in errors %}
+     <li>
+      <b>{{error}}</b>
+     
+     </li>
+   {% endfor %}
+   </ul>
 
 {% endblock %}
